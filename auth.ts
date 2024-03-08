@@ -1,12 +1,12 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
-import { db } from "./lib/db"
-import authConfig from "./auth.config"
-import {  getUserById } from "./data/user"
-import { UserRole } from "@prisma/client"
-import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation"
-import { getAccountByUserId } from "./data/account"
+import { db } from "./lib/db";
+import authConfig from "./auth.config";
+import { getUserById } from "./data/user";
+import { UserRole } from "@prisma/client";
+import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
+import { getAccountByUserId } from "./data/account";
 
 export const {
   handlers: { GET, POST },
@@ -24,53 +24,54 @@ export const {
       await db.user.update({
         where: { id: user.id },
         data: { emailVerified: new Date() },
-      })
+      });
     },
   },
   callbacks: {
-      async signIn({ user, account, }) {
-        
-        if (account?.provider !== "credentials") return true
+    async signIn({ user, account }) {
+      if (account?.provider !== "credentials") return true;
 
-        const existingUser = await getUserById(user.id);
+      const existingUser = await getUserById(user.id);
 
-        if (!existingUser) return false
+      if (!existingUser) return false;
 
-        if (!existingUser.email) return false
-        
-        if (!existingUser.emailVerified) return false
-          
-        if (existingUser.isTwoFactorEnabled) {
-          const twofactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id)
-          if (!twofactorConfirmation) return false
-          if (twofactorConfirmation) {
-            await db.twoFactorConfirmation.delete({
-              where: {
-                userId: existingUser.id
-              }
-            })
-          }
+      if (!existingUser.email) return false;
+
+      if (!existingUser.emailVerified) return false;
+
+      if (existingUser.isTwoFactorEnabled) {
+        const twofactorConfirmation = await getTwoFactorConfirmationByUserId(
+          existingUser.id,
+        );
+        if (!twofactorConfirmation) return false;
+        if (twofactorConfirmation) {
+          await db.twoFactorConfirmation.delete({
+            where: {
+              userId: existingUser.id,
+            },
+          });
         }
-      
-      return true
+      }
+
+      return true;
     },
-    
-      async session({ token, session }) {
-      console.log("sessionToken", { token, session })
+
+    async session({ token, session }) {
+      console.log("sessionToken", { token, session });
       if (token.sub && session.user) {
-        session.user.id = token.sub
+        session.user.id = token.sub;
       }
       if (token.role && session.user) {
-        session.user.role = token.role as UserRole
-        }
-        if (token.twofactor && session.user) {
-          session.user.twofactor = !!token.twofactor
-        }
-        if (token.provider && session.user) {
-          session.user.provider = token.provider as string
-        }
+        session.user.role = token.role as UserRole;
+      }
+      if (token.twofactor && session.user) {
+        session.user.twofactor = !!token.twofactor;
+      }
+      if (token.provider && session.user) {
+        session.user.provider = token.provider as string;
+      }
 
-      return session
+      return session;
     },
     async jwt({ token }) {
       if (!token.sub) return token;
@@ -87,11 +88,11 @@ export const {
 
       token.role = existingUser.role;
       token.twofactor = existingUser.isTwoFactorEnabled;
-    
+
       return token;
-    }
+    },
   },
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   ...authConfig,
-})
+});
