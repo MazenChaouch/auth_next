@@ -1,19 +1,17 @@
-import { getUserByEmail } from '@/data/user';
-import { Resend } from 'resend';
+import { getUserByEmail } from "@/data/user";
+import { url } from "inspector";
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const Url = process.env.PUBLIC_URL;
 
-
-export const sendTwoFactorTokenEmail = async (
-    email: string,
-    token: string
-) => {
-    const user = await getUserByEmail(email)
-    await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: '2FA confiramation',
-        html: `<!DOCTYPE html>
+export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
+  const user = await getUserByEmail(email);
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "2FA confiramation",
+    html: `<!DOCTYPE html>
                 <html lang="en">
                 <head>
                   <meta charset="UTF-8">
@@ -32,21 +30,18 @@ export const sendTwoFactorTokenEmail = async (
                 </body>
                 </html>
                 `,
-    });
+  });
 };
 
-export const sendVerificationEmail = async (
-    email: string,
-    token: string
-) => {
-    const user = await getUserByEmail(email);
-    const confirmationLink = `http://localhost:3000/auth/new-verification?token=${token}`;
+export const sendVerificationEmail = async (email: string, token: string) => {
+  const user = await getUserByEmail(email);
+  const confirmationLink = `${Url}/auth/new-verification?token=${token}`;
 
-    await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: 'Confirm Your Email',
-        html: `<!DOCTYPE html>
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "Confirm Your Email",
+    html: `<!DOCTYPE html>
                 <html lang="en">
                 <head>
                   <meta charset="UTF-8">
@@ -64,23 +59,17 @@ export const sendVerificationEmail = async (
                 </body>
                 </html>
               `,
-    });
+  });
 };
 
+export const sendPasswordRestEmail = async (email: string, token: string) => {
+  const confirmationLink = `${Url}/auth/new-password?token=${token}`;
 
-
-
-export const sendPasswordRestEmail = async (
-    email: string,
-    token: string
-) => {
-    const confirmationLink = `http://localhost:3000/auth/new-password?token=${token}`;
-
-    await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: 'Reset your password',
-        html: `<!DOCTYPE html>
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "Reset your password",
+    html: `<!DOCTYPE html>
                 <html lang="en">
                 <head>
                   <meta charset="UTF-8">
@@ -104,5 +93,5 @@ export const sendPasswordRestEmail = async (
                 </body>
                 </html>
                 `,
-    });
+  });
 };
