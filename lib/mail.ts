@@ -1,9 +1,7 @@
 import { getUserByEmail } from "@/data/user";
-import { url } from "inspector";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const Url = process.env.PUBLIC_URL;
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const user = await getUserByEmail(email);
@@ -35,7 +33,7 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const user = await getUserByEmail(email);
-  const confirmationLink = `${Url}/auth/new-verification?token=${token}`;
+  const confirmationLink = `${process.env.PUBLIC_URL}/auth/new-verification?token=${token}`;
 
   await resend.emails.send({
     from: "onboarding@resend.dev",
@@ -63,7 +61,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 };
 
 export const sendPasswordRestEmail = async (email: string, token: string) => {
-  const confirmationLink = `${Url}/auth/new-password?token=${token}`;
+  const confirmationLink = `${process.env.PUBLIC_URL}/auth/new-password?token=${token}`;
 
   await resend.emails.send({
     from: "onboarding@resend.dev",
