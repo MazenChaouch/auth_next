@@ -33,7 +33,7 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const user = await getUserByEmail(email);
-  const confirmationLink = `${process.env.PUBLIC_URL}/auth/new-verification?token=${token}`;
+  const confirmationLink = `https://auth-next-snowy.vercel.app/auth/new-verification?token=${token}`;
 
   await resend.emails.send({
     from: "onboarding@resend.dev",
@@ -61,7 +61,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 };
 
 export const sendPasswordRestEmail = async (email: string, token: string) => {
-  const confirmationLink = `${process.env.PUBLIC_URL}/auth/new-password?token=${token}`;
+  const confirmationLink = `https://auth-next-snowy.vercel.app/auth/new-password?token=${token}`;
 
   await resend.emails.send({
     from: "onboarding@resend.dev",
